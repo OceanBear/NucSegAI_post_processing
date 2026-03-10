@@ -1,0 +1,11 @@
+python filter_nuclei_with_ilastik_mask.py \
+  --json-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_wsi/json" \
+  --typeprob-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_wsi/typeprob" \
+  --h5-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_post_processing/artifacts/Probabilities" \
+  --rbc-h5-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_post_processing/RBC/Probabilities" \
+  --out-json-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_wsi/json_filtered" \
+  --out-typeprob-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_wsi/typeprob_filtered" \
+  --artifact-threshold 0.5 \
+  --artifact-fraction-threshold 0.5\
+  --rbc-threshold 0.5 \
+  --rbc-fraction-threshold 0.5
