@@ -331,6 +331,16 @@ def main() -> None:
         help="Optional directory with RBC *_Probabilities.h5 files (same stems as Artifact).",
     )
     parser.add_argument(
+        "--macro-h5-dir",
+        default=None,
+        help="Optional directory with Macrophage *_Probabilities.h5 files (same stems as Artifact).",
+    )
+    parser.add_argument(
+        "--lymph-h5-dir",
+        default=None,
+        help="Optional directory with Lymphocytes *_Probabilities.h5 files (same stems as Artifact).",
+    )
+    parser.add_argument(
         "--out-json-dir",
         required=True,
         help="Output directory for cleaned base JSON files.",
@@ -400,6 +410,46 @@ def main() -> None:
             "probability threshold for a nucleus to be removed (default: 0.3)."
         ),
     )
+    parser.add_argument(
+        "--macro-threshold",
+        type=float,
+        default=0.6,
+        help="Per-pixel probability threshold for Macrophage mask (default: 0.6).",
+    )
+    parser.add_argument(
+        "--macro-fraction-threshold",
+        type=float,
+        default=0.3,
+        help=(
+            "Minimum fraction of contour pixels that must exceed the Macrophage "
+            "probability threshold to mark as Macrophage candidate (default: 0.3)."
+        ),
+    )
+    parser.add_argument(
+        "--lymph-threshold",
+        type=float,
+        default=0.6,
+        help="Per-pixel probability threshold for Lymphocyte mask (default: 0.6).",
+    )
+    parser.add_argument(
+        "--lymph-fraction-threshold",
+        type=float,
+        default=0.3,
+        help=(
+            "Minimum fraction of contour pixels that must exceed the Lymphocyte "
+            "probability threshold to mark as Lymphocyte candidate (default: 0.3)."
+        ),
+    )
+    parser.add_argument(
+        "--reclass-top-k",
+        type=int,
+        default=3,
+        help=(
+            "Number of highest-probability classes (excluding current type) "
+            "to consider when deciding Macrophage/Lymphocyte reclassification "
+            "(default: 3)."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -418,6 +468,12 @@ def main() -> None:
     rbc_h5_map: Dict[str, str] = {}
     if args.rbc_h5_dir:
         rbc_h5_map = build_h5_map(args.rbc_h5_dir)
+    macro_h5_map: Dict[str, str] = {}
+    if getattr(args, "macro_h5_dir", None):
+        macro_h5_map = build_h5_map(args.macro_h5_dir)
+    lymph_h5_map: Dict[str, str] = {}
+    if getattr(args, "lymph_h5_dir", None):
+        lymph_h5_map = build_h5_map(args.lymph_h5_dir)
 
     base_stems = set(base_map.keys())
     typeprob_stems = set(typeprob_map.keys())
@@ -445,6 +501,8 @@ def main() -> None:
         typeprob_path = typeprob_map[stem]
         artifact_h5_path = artifact_h5_map[stem]
         rbc_h5_path = rbc_h5_map.get(stem) if rbc_h5_map else None
+        macro_h5_path = macro_h5_map.get(stem) if macro_h5_map else None
+        lymph_h5_path = lymph_h5_map.get(stem) if lymph_h5_map else None
 
         print("=" * 80)
         print(f"STEM: {stem}")
@@ -455,6 +513,10 @@ def main() -> None:
             print(f"  RBC H5      : {rbc_h5_path}")
         else:
             print("  RBC H5      : (none for this stem)")
+        if macro_h5_path:
+            print(f"  Macro H5    : {macro_h5_path}")
+        if lymph_h5_path:
+            print(f"  Lymph H5    : {lymph_h5_path}")
 
         try:
             base_data = load_base_json(base_path)
@@ -470,6 +532,20 @@ def main() -> None:
                     rbc_h5_path,
                     dataset_path=args.rbc_dataset_path,
                     channel=args.rbc_channel,
+                )
+            macro_map = None
+            if macro_h5_path:
+                macro_map = load_prob_map(
+                    macro_h5_path,
+                    dataset_path=args.dataset_path,
+                    channel=args.artifact_channel,
+                )
+            lymph_map = None
+            if lymph_h5_path:
+                lymph_map = load_prob_map(
+                    lymph_h5_path,
+                    dataset_path=args.dataset_path,
+                    channel=args.artifact_channel,
                 )
         except Exception as e:
             print(f"  [ERROR] Skipping stem due to load error: {e}")
@@ -570,6 +646,79 @@ def main() -> None:
         else:
             print("  [WARN] typeprob JSON is not a dict; leaving it unchanged.")
             typeprob_cleaned = typeprob_data
+
+        # ------------------------------------------------------------------
+        # Reclassification using Macrophage and Lymphocyte masks + typeprob
+        # ------------------------------------------------------------------
+        MACRO_CLASS = 3
+        LYMPH_CLASS = 4
+
+        if isinstance(typeprob_cleaned, dict) and (macro_map is not None or lymph_map is not None):
+            for nid, nuc_info in cleaned_nuc.items():
+                # Ensure we have probabilities for this nucleus
+                probs = typeprob_cleaned.get(nid)
+                if not isinstance(probs, (list, tuple)) or len(probs) < max(MACRO_CLASS, LYMPH_CLASS) + 1:
+                    continue
+
+                # Current nucleus type (any class 0-6 can be reclassified)
+                current_type = nuc_info.get("type")
+
+                contour = nuc_info.get("contour")
+                if contour is None:
+                    continue
+
+                macro_flag = False
+                lymph_flag = False
+
+                if macro_map is not None:
+                    macro_fraction = compute_fraction_above_threshold_in_contour(
+                        macro_map,
+                        contour,
+                        args.macro_threshold,
+                    )
+                    macro_flag = macro_fraction > args.macro_fraction_threshold
+
+                if lymph_map is not None:
+                    lymph_fraction = compute_fraction_above_threshold_in_contour(
+                        lymph_map,
+                        contour,
+                        args.lymph_threshold,
+                    )
+                    lymph_flag = lymph_fraction > args.lymph_fraction_threshold
+
+                if not (macro_flag or lymph_flag):
+                    continue
+
+                # Build candidates excluding current type and find top-K
+                candidates = [(i, float(p)) for i, p in enumerate(probs) if i != current_type]
+                candidates.sort(key=lambda t: t[1], reverse=True)
+                k = max(1, int(getattr(args, "reclass_top_k", 3)))
+                topk = [cls for cls, p in candidates[:k]]
+
+                in_top_macro = MACRO_CLASS in topk
+                in_top_lymph = LYMPH_CLASS in topk
+
+                # Apply decision rules
+                new_type = current_type
+                if macro_flag and not lymph_flag:
+                    if in_top_macro:
+                        new_type = MACRO_CLASS
+                elif lymph_flag and not macro_flag:
+                    if in_top_lymph:
+                        new_type = LYMPH_CLASS
+                elif macro_flag and lymph_flag:
+                    if in_top_macro and in_top_lymph:
+                        # Both in top-K: pick the higher probability
+                        if probs[LYMPH_CLASS] > probs[MACRO_CLASS]:
+                            new_type = LYMPH_CLASS
+                        else:
+                            new_type = MACRO_CLASS
+                    elif in_top_macro:
+                        new_type = MACRO_CLASS
+                    elif in_top_lymph:
+                        new_type = LYMPH_CLASS
+
+                nuc_info["type"] = new_type
 
         # Write outputs
         out_base_path = os.path.join(args.out_json_dir, os.path.basename(base_path))
