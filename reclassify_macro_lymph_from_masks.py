@@ -17,6 +17,8 @@ Inputs:
 Outputs:
   --out-json-dir     : output directory for reclassified base JSONs
   --out-typeprob-dir : output directory for typeprob JSONs (copied through, unchanged)
+  reclassify_summary.csv : written to --out-json-dir (one row per stem + TOTAL row),
+    same style as filter_summary.csv from filter_nuclei_with_ilastik_mask.py
 
 Reclassification logic (per nucleus):
   - Compute macro_flag if fraction of contour pixels with Macro_prob > macro-threshold
@@ -40,14 +42,13 @@ Class mapping (NucSegAI):
   5: Vascular
   6: Fibroblast/Stroma
 
-Important coordinate note:
-  The ilastik /exported_data dataset appears to be stored as (X, Y, C), but JSON
-  contours/centroids use (Y, X). We transpose the first two axes when loading
-  probability maps so that downstream indexing is [y, x].
+Important coordinate note (per your data spec):
+  - H5 /exported_data is indexed as (Y, X, C), i.e. arr[y, x, c]
+  - JSON contour points are [x, y] (col, row)
+  - JSON bbox is [[y_min, x_min], [y_max, x_max]]
 """
 
 import argparse
-import csv
 import json
 import os
 import re
@@ -128,9 +129,8 @@ def load_prob_map(
     if channel < 0 or channel >= arr.shape[2]:
         raise ValueError(f"channel={channel} out of range for shape {arr.shape} in {h5_path}")
 
-    # Stored as (X, Y, C); convert to (Y, X, C)
-    arr_yx = np.transpose(arr, (1, 0, 2))
-    prob_map = arr_yx[:, :, channel].astype(np.float32)
+    # Stored as (Y, X, C); keep as-is so downstream indexes as [y, x]
+    prob_map = arr[:, :, channel].astype(np.float32)
     return prob_map
 
 
@@ -171,8 +171,9 @@ def compute_fraction_above_threshold_in_contour(
         return 0.0
     height, width = prob_map.shape
 
-    ys = np.array([pt[0] for pt in contour], dtype=np.float32)
-    xs = np.array([pt[1] for pt in contour], dtype=np.float32)
+    # Contour points are [x, y] (col, row)
+    xs = np.array([pt[0] for pt in contour], dtype=np.float32)
+    ys = np.array([pt[1] for pt in contour], dtype=np.float32)
     if ys.size == 0 or xs.size == 0:
         return 0.0
 
@@ -296,19 +297,12 @@ def main() -> None:
     print(f"Using reclass-top-k={args.reclass_top_k}")
     print()
 
-    # Summary CSV (per stem)
-    per_stem_rows: List[List] = []
-    per_stem_rows.append(
-        [
-            "stem",
-            "n_nuclei",
-            "n_macro_flag",
-            "n_lymph_flag",
-            "n_both_flags",
-            "n_reclass_to_macro",
-            "n_reclass_to_lymph",
-        ]
+    # Summary CSV (same pattern as filter_nuclei_with_ilastik_mask.py -> filter_summary.csv)
+    summary_rows: List[str] = []
+    summary_rows.append(
+        "stem,total_nuclei,n_macro_flag,n_lymph_flag,n_both_flags,n_reclass_to_macro,n_reclass_to_lymph"
     )
+    tot_n = tot_mf = tot_lf = tot_both = tot_rm = tot_rl = 0
 
     for stem in stems:
         base_path = base_map[stem]
@@ -319,11 +313,18 @@ def main() -> None:
         print("=" * 80)
         print(f"STEM: {stem}")
 
-        base_data = load_base_json(base_path)
-        tp_data = load_typeprob_json(tp_path)
-
-        macro_prob = load_prob_map(macro_h5_path, dataset_path=args.dataset_path, channel=args.channel)
-        lymph_prob = load_prob_map(lymph_h5_path, dataset_path=args.dataset_path, channel=args.channel)
+        try:
+            base_data = load_base_json(base_path)
+            tp_data = load_typeprob_json(tp_path)
+            macro_prob = load_prob_map(
+                macro_h5_path, dataset_path=args.dataset_path, channel=args.channel
+            )
+            lymph_prob = load_prob_map(
+                lymph_h5_path, dataset_path=args.dataset_path, channel=args.channel
+            )
+        except Exception as e:
+            print(f"  [ERROR] Skipping stem due to load error: {e}")
+            continue
 
         nuc = base_data["nuc"]
 
@@ -413,25 +414,29 @@ def main() -> None:
         )
         print(f"wrote -> {out_base_path}")
 
-        per_stem_rows.append(
-            [
-                stem,
-                int(len(nuc)),
-                int(n_macro_flag),
-                int(n_lymph_flag),
-                int(n_both_flags),
-                int(n_reclass_macro),
-                int(n_reclass_lymph),
-            ]
+        nn = int(len(nuc))
+        summary_rows.append(
+            f"{stem},{nn},{n_macro_flag},{n_lymph_flag},{n_both_flags},"
+            f"{n_reclass_macro},{n_reclass_lymph}"
+        )
+        tot_n += nn
+        tot_mf += n_macro_flag
+        tot_lf += n_lymph_flag
+        tot_both += n_both_flags
+        tot_rm += n_reclass_macro
+        tot_rl += n_reclass_lymph
+
+    if len(summary_rows) > 1:
+        summary_rows.append(
+            f"TOTAL,{tot_n},{tot_mf},{tot_lf},{tot_both},{tot_rm},{tot_rl}"
         )
 
-    summary_csv_path = os.path.join(args.out_json_dir, "reclassify_summary.csv")
-    with open(summary_csv_path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerows(per_stem_rows)
+    summary_path = os.path.join(args.out_json_dir, "reclassify_summary.csv")
+    with open(summary_path, "w") as f:
+        f.write("\n".join(summary_rows))
 
     print()
-    print(f"Summary CSV written to: {summary_csv_path}")
+    print(f"Summary written to: {summary_path}")
 
 
 if __name__ == "__main__":
