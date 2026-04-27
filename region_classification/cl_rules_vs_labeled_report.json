@@ -1,0 +1,603 @@
+{
+  "labeled_json": "/home/qxiong/projects/nucsegai_post_processing/region_classification/tile_categories_88_tiles.json",
+  "predicted_json": "/home/qxiong/projects/nucsegai_post_processing/region_classification/tile_categories_cl_rules.json",
+  "predicted_metadata": {
+    "tile_size_mm2": 2.0,
+    "description": "Tile categories from CL map compositional rules (see metadata.thresholds); no tumour_scar. Tile ids are *_cl.png stems without _cl.",
+    "total_tiles": 1005,
+    "groups": {
+      "bg": 158,
+      "margin": 187,
+      "tumour_inv": 596,
+      "tumour_lep": 64
+    },
+    "cl_files_seen": 1005,
+    "cl_files_ok": 1005,
+    "thresholds": {
+      "order": [
+        "tumour_lep (strict): ignore > lep_ignore_gt and lep_tumor_min <= tumor <= lep_tumor_max",
+        "bg: ignore >= bg_ignore_gte and tumor <= bg_tumor_lte",
+        "tumour_inv: ignore <= inv_margin_ignore_split else margin"
+      ],
+      "lep_ignore_gt": 0.23,
+      "lep_tumor_min": 0.06,
+      "lep_tumor_max": 0.12,
+      "bg_ignore_gte": 0.3,
+      "bg_tumor_lte": 0.07,
+      "inv_margin_ignore_split": 0.135
+    }
+  },
+  "n_labeled_ex_scar": 87,
+  "n_found_in_predictions": 87,
+  "n_missing_predictions": 0,
+  "missing_labeled_tile_ids": [],
+  "accuracy": 0.6091954022988506,
+  "confusion_matrix": {
+    "bg|bg": 15,
+    "bg|margin": 2,
+    "bg|tumour_inv": 0,
+    "bg|tumour_lep": 0,
+    "margin|bg": 3,
+    "margin|margin": 6,
+    "margin|tumour_inv": 11,
+    "margin|tumour_lep": 4,
+    "tumour_inv|bg": 0,
+    "tumour_inv|margin": 12,
+    "tumour_inv|tumour_inv": 30,
+    "tumour_inv|tumour_lep": 0,
+    "tumour_lep|bg": 1,
+    "tumour_lep|margin": 1,
+    "tumour_lep|tumour_inv": 0,
+    "tumour_lep|tumour_lep": 2
+  },
+  "per_class": {
+    "bg": {
+      "support": 17,
+      "precision": 0.7894736842105263,
+      "recall": 0.8823529411764706,
+      "f1": 0.8333333333333333
+    },
+    "margin": {
+      "support": 24,
+      "precision": 0.2857142857142857,
+      "recall": 0.25,
+      "f1": 0.26666666666666666
+    },
+    "tumour_inv": {
+      "support": 42,
+      "precision": 0.7317073170731707,
+      "recall": 0.7142857142857143,
+      "f1": 0.7228915662650603
+    },
+    "tumour_lep": {
+      "support": 4,
+      "precision": 0.3333333333333333,
+      "recall": 0.5,
+      "f1": 0.4
+    }
+  },
+  "per_tile": [
+    {
+      "labeled_tile_id": "JN_TS_001_bg_tile_19702_7361",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_bg_tile_6022_13386",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_bg_tile_10309_3904",
+      "true_label": "bg",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_bg_tile_4874_6291",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_bg_tile_4034_8877",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_bg_tile_22539_15864",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_010_bg_tile_2931_6096",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_010_bg_tile_3215_9086",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_bg_tile_3175_8574",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_bg_tile_9641_4431",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_005_bg_tile_22229_14087",
+      "true_label": "bg",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_bg_tile_26418_6375",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_bg_tile_25058_13037",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_bg_tile_24445_5502",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_bg_tile_20363_2323",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_bg_tile_22849_5404",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_bg_tile_12883_7423",
+      "true_label": "bg",
+      "predicted_label": "bg",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_005_margin_tile_16098_16851",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_margin_tile_22047_11885",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_margin_tile_20770_5746",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_margin_tile_21405_5778",
+      "true_label": "margin",
+      "predicted_label": "tumour_lep",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_margin_tile_21741_9476",
+      "true_label": "margin",
+      "predicted_label": "tumour_lep",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_margin_tile_14969_1849",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_margin_tile_14477_11069",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_margin_tile_8969_10184",
+      "true_label": "margin",
+      "predicted_label": "bg",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_margin_tile_6847_16838",
+      "true_label": "margin",
+      "predicted_label": "bg",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_margin_tile_14853_8902",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_margin_tile_12979_13919",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_margin_tile_11018_3851",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_margin_tile_19915_13138",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_margin_tile_8996_10421",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_010_margin_tile_9700_11208",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_margin_tile_11899_13199",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_010_margin_tile_14615_11100",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_009_margin_tile_2687_7393",
+      "true_label": "margin",
+      "predicted_label": "margin",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_margin_tile_4433_3944",
+      "true_label": "margin",
+      "predicted_label": "bg",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_margin_tile_17284_14465",
+      "true_label": "margin",
+      "predicted_label": "tumour_lep",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_007_margin_tile_16162_8015",
+      "true_label": "margin",
+      "predicted_label": "tumour_lep",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_margin_tile_3563_12780",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_margin_tile_9129_7057",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_005_margin_tile_6848_15741",
+      "true_label": "margin",
+      "predicted_label": "tumour_inv",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_tumour_inv_tile_10912_14661",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_tumour_inv_tile_12422_7452",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_tumour_inv_tile_12561_12024",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_tumour_inv_tile_12975_8638",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_tumour_inv_tile_14964_6017",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_tumour_inv_tile_10063_5647",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_011_tumour_inv_tile_11860_2956",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_010_tumour_inv_tile_11151_13664",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_009_tumour_inv_tile_10116_4876",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_009_tumour_inv_tile_13939_13227",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_009_tumour_inv_tile_15794_3470",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_009_tumour_inv_tile_16638_17084",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_tumour_inv_tile_8556_3508",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_tumour_inv_tile_12324_13069",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_tumour_inv_tile_16883_9274",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_008_tumour_inv_tile_11465_1362",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_007_tumour_inv_tile_5132_8984",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_007_tumour_inv_tile_14235_10857",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_tumour_inv_tile_6932_15344",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_tumour_inv_tile_7455_9286",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_tumour_inv_tile_8794_11849",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_006_tumour_inv_tile_11086_10091",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_005_tumour_inv_tile_8818_12453",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_005_tumour_inv_tile_13587_10688",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_tumour_inv_tile_7378_18446",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_tumour_inv_tile_10763_10849",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_004_tumour_inv_tile_16864_7820",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_6454_8576",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_4733_12460",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_13315_8127",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_13991_11516",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_17451_2594",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_inv_tile_12269_15511",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_tumour_inv_tile_3873_3799",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_tumour_inv_tile_9248_7887",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_tumour_inv_tile_14559_5229",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_002_tumour_inv_tile_11175_10127",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_tumour_inv_tile_6722_12156",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_tumour_inv_tile_10009_14592",
+      "true_label": "tumour_inv",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_tumour_inv_tile_19986_8421",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_tumour_inv_tile_18392_16717",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_013_tumour_inv_tile_19191_11788",
+      "true_label": "tumour_inv",
+      "predicted_label": "tumour_inv",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_012_tumour_lep_tile_6457_12399",
+      "true_label": "tumour_lep",
+      "predicted_label": "margin",
+      "match": false
+    },
+    {
+      "labeled_tile_id": "JN_TS_001_tumour_lep_tile_11121_12254",
+      "true_label": "tumour_lep",
+      "predicted_label": "tumour_lep",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_003_tumour_lep_tile_21656_15546",
+      "true_label": "tumour_lep",
+      "predicted_label": "tumour_lep",
+      "match": true
+    },
+    {
+      "labeled_tile_id": "JN_TS_007_tumour_lep_tile_3888_13879",
+      "true_label": "tumour_lep",
+      "predicted_label": "bg",
+      "match": false
+    }
+  ]
+}
