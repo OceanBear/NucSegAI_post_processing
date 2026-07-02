@@ -1,4 +1,4 @@
-python reclassify_macro_lymph_from_masks.py \
+python reclassify_from_masks.py \
   --json-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/json_filtered" \
   --typeprob-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/typeprob_filtered" \
   --macro-h5-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_post_processing/Macrophage/Probabilities" \

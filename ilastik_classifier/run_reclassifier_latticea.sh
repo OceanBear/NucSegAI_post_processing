@@ -1,0 +1,14 @@
+python ilastik_classifier/reclassify_from_masks.py \
+  --json-dir "/mnt/j/HandE/results/latticea_test_data/pred_scn/json" \
+  --typeprob-dir "/mnt/j/HandE/results/latticea_test_data/pred_scn/typeprob" \
+  --tumor-h5-dir "/mnt/j/HandE/results/latticea_test_data/ilastik_h5/Tumor" \
+  --macro-h5-dir "/mnt/j/HandE/results/latticea_test_data/ilastik_h5/Macrophage" \
+  --lymph-h5-dir "/mnt/j/HandE/results/latticea_test_data/ilastik_h5/Lymphocyte" \
+  --fibro-h5-dir "/mnt/j/HandE/results/latticea_test_data/ilastik_h5/Fibroblasts" \
+  --out-json-dir "/mnt/j/HandE/results/latticea_test_data/pred_scn/json_reclass" \
+  --out-typeprob-dir "/mnt/j/HandE/results/latticea_test_data/pred_scn/typeprob_reclass" \
+  --tumor-threshold 0.4 --tumor-fraction-threshold 0.4 \
+  --macro-threshold 0.7 --macro-fraction-threshold 0.7 \
+  --lymph-threshold 0.5 --lymph-fraction-threshold 0.5 \
+  --fibro-threshold 0.3 --fibro-fraction-threshold 0.3 \
+  --reclass-top-k 7

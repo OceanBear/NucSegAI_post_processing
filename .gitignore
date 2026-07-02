@@ -1,0 +1,6 @@
+/cellvit_inspection/_tmp_bbox_recall
+/cellvit_inspection/eval_results
+/cellvit_inspection/eval_results_macenko
+region_classification/tile_logreg_oof_predictions.csv
+region_classification/tile_logreg_oof_predictions.csv
+region_classification/tile_logreg_oof_predictions.csv
