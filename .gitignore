@@ -4,3 +4,6 @@
 region_classification/tile_logreg_oof_predictions.csv
 region_classification/tile_logreg_oof_predictions.csv
 region_classification/tile_logreg_oof_predictions.csv
+/cellvit_inspection/eval_results_lattice-a
+/cellvit_inspection/eval_results_spencer
+/cellvit_inspection/eval_results_t_s_40

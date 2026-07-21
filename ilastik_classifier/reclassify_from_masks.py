@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-Reclassify nuclei as Tumor / Macrophage / Lymphocyte / Fibroblast using ilastik probability
-masks and NucSegAI type probabilities (typeprob JSON).
+Reclassify nuclei as Tumor / Lymphocyte / Fibroblast using ilastik probability
+masks and 4-class type probabilities (typeprob JSON).
 
 This script is intended to be run AFTER you have already produced filtered
 JSONs (e.g., after Artifact/RBC removal + reindexing). It does NOT remove nuclei;
@@ -10,9 +10,8 @@ it only updates the nucleus 'type' field in the base JSON.
 Inputs:
   --json-dir         : base nuclei JSONs (top-level key 'nuc')
   --typeprob-dir     : typeprob JSONs (top-level keys are nucleus IDs, values are
-                       lists/tuples of length >= 7 giving class probabilities)
+                       lists/tuples of length >= 4 giving class probabilities)
   --tumor-h5-dir     : Tumor ilastik Probabilities (*.h5)
-  --macro-h5-dir     : Macrophage ilastik Probabilities (*.h5)
   --lymph-h5-dir     : Lymphocytes ilastik Probabilities (*.h5)
   --fibro-h5-dir     : Fibroblast/Stroma ilastik Probabilities (*.h5)
 
@@ -23,7 +22,7 @@ Outputs:
     same style as filter_summary.csv from filter_nuclei_with_ilastik_mask.py
 
 Reclassification logic (per nucleus):
-  - For each class (Tumor/Macro/Lymph/Fibro):
+  - For each class (Tumor/Lymph/Fibro):
       - compute fraction of contour pixels with Prob > class-threshold
       - flag if fraction exceeds class-fraction-threshold
   - If no flags: keep original type.
@@ -32,14 +31,11 @@ Reclassification logic (per nucleus):
   - If there are candidates: reclassify to the candidate with max mask fraction (ties: typeprob, then class id).
   - Else: keep original type.
 
-Class mapping (NucSegAI):
-  0: Undefined
-  1: Tumor/Epithelium (PD-L1 low and Ki67 low)
-  2: Tumor/Epithelium (PD-L1 hi or Ki67 hi)
-  3: Macrophage
-  4: Lymphocyte
-  5: Vascular
-  6: Fibroblast/Stroma
+Class mapping (see type_info_4class.json):
+  0: Others
+  1: Tumor
+  2: Lymphocyte
+  3: Fibroblast/Stroma
 
 Important coordinate note (per your data spec):
   - H5 /exported_data is indexed as (Y, X, C), i.e. arr[y, x, c]
@@ -56,13 +52,10 @@ from typing import Dict, List, Sequence, Tuple
 import h5py  # type: ignore
 import numpy as np  # type: ignore
 
+NUM_CLASSES = 4
 TUMOR_CLASS = 1
-MACRO_CLASS = 3
-LYMPH_CLASS = 4
-FIBRO_CLASS = 6
-
-CLASS_IDS = (TUMOR_CLASS, MACRO_CLASS, LYMPH_CLASS, FIBRO_CLASS)
-TUMOR_CLASSES = (1, 2)
+LYMPH_CLASS = 2
+FIBRO_CLASS = 3
 
 def build_base_json_map(json_dir: str) -> Dict[str, str]:
     mapping: Dict[str, str] = {}
@@ -261,7 +254,7 @@ def pick_new_type_from_candidates(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Reclassify nuclei as Tumor/Macro/Lymph/Fibro using masks + typeprob JSON."
+        description="Reclassify nuclei as Tumor/Lymph/Fibro (4-class) using masks + typeprob JSON."
     )
     parser.add_argument("--json-dir", required=True, help="Directory with base nuclei JSON files.")
     parser.add_argument(
@@ -273,11 +266,6 @@ def main() -> None:
         "--tumor-h5-dir",
         required=True,
         help="Directory with Tumor *_Probabilities.h5 files.",
-    )
-    parser.add_argument(
-        "--macro-h5-dir",
-        required=True,
-        help="Directory with Macrophage *_Probabilities.h5 files.",
     )
     parser.add_argument(
         "--lymph-h5-dir",
@@ -312,8 +300,6 @@ def main() -> None:
     )
     parser.add_argument("--tumor-threshold", type=float, default=0.6)
     parser.add_argument("--tumor-fraction-threshold", type=float, default=0.3)
-    parser.add_argument("--macro-threshold", type=float, default=0.6)
-    parser.add_argument("--macro-fraction-threshold", type=float, default=0.3)
     parser.add_argument("--lymph-threshold", type=float, default=0.6)
     parser.add_argument("--lymph-fraction-threshold", type=float, default=0.3)
     parser.add_argument("--fibro-threshold", type=float, default=0.6)
@@ -339,7 +325,6 @@ def main() -> None:
     base_map = build_base_json_map(args.json_dir)
     typeprob_map = build_typeprob_json_map(args.typeprob_dir)
     tumor_map_paths = build_h5_map(args.tumor_h5_dir)
-    macro_map_paths = build_h5_map(args.macro_h5_dir)
     lymph_map_paths = build_h5_map(args.lymph_h5_dir)
     fibro_map_paths = build_h5_map(args.fibro_h5_dir)
 
@@ -347,7 +332,6 @@ def main() -> None:
         set(base_map.keys())
         & set(typeprob_map.keys())
         & set(tumor_map_paths.keys())
-        & set(macro_map_paths.keys())
         & set(lymph_map_paths.keys())
         & set(fibro_map_paths.keys())
     )
@@ -357,7 +341,6 @@ def main() -> None:
     print(f"Base JSON files      : {len(base_map)}")
     print(f"Typeprob JSON files  : {len(typeprob_map)}")
     print(f"Tumor H5 files       : {len(tumor_map_paths)}")
-    print(f"Macro H5 files       : {len(macro_map_paths)}")
     print(f"Lymph H5 files       : {len(lymph_map_paths)}")
     print(f"Fibro H5 files       : {len(fibro_map_paths)}")
     print(f"Stems with all inputs: {len(stems)}")
@@ -368,20 +351,19 @@ def main() -> None:
     summary_rows: List[str] = []
     summary_rows.append(
         "stem,total_nuclei,"
-        "n_tumor_flag,n_macro_flag,n_lymph_flag,n_fibro_flag,"
+        "n_tumor_flag,n_lymph_flag,n_fibro_flag,"
         "n_multi_flag,"
-        "n_reclass_to_tumor,n_reclass_to_macro,n_reclass_to_lymph,n_reclass_to_fibro"
+        "n_reclass_to_tumor,n_reclass_to_lymph,n_reclass_to_fibro"
     )
     tot_n = 0
-    tot_tf = tot_mf = tot_lf = tot_ff = 0
+    tot_tf = tot_lf = tot_ff = 0
     tot_multi = 0
-    tot_rt = tot_rm = tot_rl = tot_rf = 0
+    tot_rt = tot_rl = tot_rf = 0
 
     for stem in stems:
         base_path = base_map[stem]
         tp_path = typeprob_map[stem]
         tumor_h5_path = tumor_map_paths[stem]
-        macro_h5_path = macro_map_paths[stem]
         lymph_h5_path = lymph_map_paths[stem]
         fibro_h5_path = fibro_map_paths[stem]
 
@@ -393,9 +375,6 @@ def main() -> None:
             tp_data = load_typeprob_json(tp_path)
             tumor_prob = load_prob_map(
                 tumor_h5_path, dataset_path=args.dataset_path, channel=args.channel
-            )
-            macro_prob = load_prob_map(
-                macro_h5_path, dataset_path=args.dataset_path, channel=args.channel
             )
             lymph_prob = load_prob_map(
                 lymph_h5_path, dataset_path=args.dataset_path, channel=args.channel
@@ -410,12 +389,10 @@ def main() -> None:
         nuc = base_data["nuc"]
 
         n_tumor_flag = 0
-        n_macro_flag = 0
         n_lymph_flag = 0
         n_fibro_flag = 0
         n_multi_flag = 0
         n_reclass_tumor = 0
-        n_reclass_macro = 0
         n_reclass_lymph = 0
         n_reclass_fibro = 0
 
@@ -427,7 +404,7 @@ def main() -> None:
                 continue
 
             probs = tp_data.get(nid)
-            if not isinstance(probs, (list, tuple)) or len(probs) < 7:
+            if not isinstance(probs, (list, tuple)) or len(probs) < NUM_CLASSES:
                 continue
 
             current_type = info.get("type")
@@ -435,9 +412,6 @@ def main() -> None:
 
             tumor_fraction = compute_fraction_above_threshold_in_contour(
                 tumor_prob, contour, args.tumor_threshold
-            )
-            macro_fraction = compute_fraction_above_threshold_in_contour(
-                macro_prob, contour, args.macro_threshold
             )
             lymph_fraction = compute_fraction_above_threshold_in_contour(
                 lymph_prob, contour, args.lymph_threshold
@@ -447,15 +421,12 @@ def main() -> None:
             )
 
             tumor_flag = tumor_fraction > args.tumor_fraction_threshold
-            macro_flag = macro_fraction > args.macro_fraction_threshold
             lymph_flag = lymph_fraction > args.lymph_fraction_threshold
             fibro_flag = fibro_fraction > args.fibro_fraction_threshold
 
-            flag_count = int(tumor_flag) + int(macro_flag) + int(lymph_flag) + int(fibro_flag)
+            flag_count = int(tumor_flag) + int(lymph_flag) + int(fibro_flag)
             if tumor_flag:
                 n_tumor_flag += 1
-            if macro_flag:
-                n_macro_flag += 1
             if lymph_flag:
                 n_lymph_flag += 1
             if fibro_flag:
@@ -466,21 +437,18 @@ def main() -> None:
             if flag_count == 0:
                 continue
 
-            # Special rule: NucSegAI has two tumor-like classes (1 and 2). If the nucleus is
-            # already 1 or 2 and ONLY the tumor mask flag is raised, do not reclassify.
+            # If already Tumor and ONLY the tumor mask flag is raised, do not reclassify.
             if tumor_flag and flag_count == 1:
                 try:
                     cur_int = int(current_type)
                 except Exception:
                     cur_int = None
-                if cur_int in TUMOR_CLASSES:
+                if cur_int == TUMOR_CLASS:
                     continue
 
             class_id_to_fraction: Dict[int, float] = {}
             if tumor_flag:
                 class_id_to_fraction[TUMOR_CLASS] = tumor_fraction
-            if macro_flag:
-                class_id_to_fraction[MACRO_CLASS] = macro_fraction
             if lymph_flag:
                 class_id_to_fraction[LYMPH_CLASS] = lymph_fraction
             if fibro_flag:
@@ -497,8 +465,6 @@ def main() -> None:
                 info["type"] = new_type
                 if new_type == TUMOR_CLASS:
                     n_reclass_tumor += 1
-                elif new_type == MACRO_CLASS:
-                    n_reclass_macro += 1
                 elif new_type == LYMPH_CLASS:
                     n_reclass_lymph += 1
                 elif new_type == FIBRO_CLASS:
@@ -516,9 +482,9 @@ def main() -> None:
             json.dump(tp_data, f, indent=2)
 
         print(
-            f"n_nuclei={len(nuc)}, tumor_flag={n_tumor_flag}, macro_flag={n_macro_flag}, "
+            f"n_nuclei={len(nuc)}, tumor_flag={n_tumor_flag}, "
             f"lymph_flag={n_lymph_flag}, fibro_flag={n_fibro_flag}, multi_flag={n_multi_flag}, "
-            f"reclass_tumor={n_reclass_tumor}, reclass_macro={n_reclass_macro}, "
+            f"reclass_tumor={n_reclass_tumor}, "
             f"reclass_lymph={n_reclass_lymph}, reclass_fibro={n_reclass_fibro}"
         )
         print(f"wrote -> {out_base_path}")
@@ -526,27 +492,25 @@ def main() -> None:
         nn = int(len(nuc))
         summary_rows.append(
             f"{stem},{nn},"
-            f"{n_tumor_flag},{n_macro_flag},{n_lymph_flag},{n_fibro_flag},"
+            f"{n_tumor_flag},{n_lymph_flag},{n_fibro_flag},"
             f"{n_multi_flag},"
-            f"{n_reclass_tumor},{n_reclass_macro},{n_reclass_lymph},{n_reclass_fibro}"
+            f"{n_reclass_tumor},{n_reclass_lymph},{n_reclass_fibro}"
         )
         tot_n += nn
         tot_tf += n_tumor_flag
-        tot_mf += n_macro_flag
         tot_lf += n_lymph_flag
         tot_ff += n_fibro_flag
         tot_multi += n_multi_flag
         tot_rt += n_reclass_tumor
-        tot_rm += n_reclass_macro
         tot_rl += n_reclass_lymph
         tot_rf += n_reclass_fibro
 
     if len(summary_rows) > 1:
         summary_rows.append(
             f"TOTAL,{tot_n},"
-            f"{tot_tf},{tot_mf},{tot_lf},{tot_ff},"
+            f"{tot_tf},{tot_lf},{tot_ff},"
             f"{tot_multi},"
-            f"{tot_rt},{tot_rm},{tot_rl},{tot_rf}"
+            f"{tot_rt},{tot_rl},{tot_rf}"
         )
 
     summary_path = os.path.join(args.out_json_dir, "reclassify_summary.csv")
