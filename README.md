@@ -2,6 +2,34 @@
 
 Post-processing, inspection, and evaluation utilities for NucSegAI / QuPath / CellViT nuclei pipelines.
 
+## Environment and dependencies
+
+Recommended conda environment: `nucsegai_post_processing` (Python **3.11**).
+
+```bash
+conda activate nucsegai_post_processing
+pip install -r requirements.txt
+```
+
+Core libraries (see `requirements.txt`):
+
+
+| Library                  | Role                                        |
+| ------------------------ | ------------------------------------------- |
+| `numpy`                  | Arrays / numerical work across all packages |
+| `h5py`                   | Read ilastik `*_Probabilities.h5` masks     |
+| `pillow`                 | Load QuPath `*_cl.png` maps                 |
+| `matplotlib`             | Region stats / labeled-tile plots           |
+| `scikit-learn`, `joblib` | Tile logistic regression train / predict    |
+| `scipy`, `shapely`       | CellViT instance IoU matching               |
+
+
+`cellvit_inspection/requirements.txt` lists the smaller subset needed for CellViT evaluation alone.
+
+---
+
+
+
 ## What is ilastik?
 
 [ilastik](https://www.ilastik.org/) is an interactive learning and segmentation toolkit: you brush labels on images and it predicts class probabilities without requiring ML expertise. In this project we train ilastik pixel classifiers to produce **probability masks** (`*_Probabilities.h5`) that highlight unwanted regions(For example: **red blood cells** and **dark artifacts**). The scripts under `ilastik_inspection` and `ilastik_classifier` then use those masks to inspect thresholds and **filter matching nuclei out of NucSegAI segmentation JSONs** (and synced typeprob files). The same style of masks can also drive nucleus **reclassification** (Tumor / Lymphocyte / Fibroblast).
