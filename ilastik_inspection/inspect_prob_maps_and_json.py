@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Inspect ilastik probability maps and NucSegAI JSON nuclei to understand:
+Inspect ilastik probability maps and HoVer-Net JSON nuclei to understand:
 
 1. Which HDF5 dataset likely holds the probability volumes.
 2. The shape/layout of the probability arrays (channels-first vs channels-last).
@@ -191,7 +191,7 @@ def read_basic_stats(h5_path: str, dset_path: str) -> Tuple[float, float]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Inspect ilastik probability HDF5 files and matching NucSegAI JSON files."
+        description="Inspect ilastik probability HDF5 files and matching HoVer-Net JSON files."
     )
     parser.add_argument(
         "--h5-dir",
@@ -201,7 +201,7 @@ def main() -> None:
     parser.add_argument(
         "--json-dir",
         required=True,
-        help="Directory containing NucSegAI nuclei JSON files.",
+        help="Directory containing HoVer-Net nuclei JSON files.",
     )
     parser.add_argument(
         "--max-files",

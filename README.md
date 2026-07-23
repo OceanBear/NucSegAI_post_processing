@@ -1,6 +1,6 @@
 # nucsegai_post_processing
 
-Post-processing, inspection, and evaluation utilities for NucSegAI / QuPath / CellViT nuclei pipelines.
+Post-processing, inspection, and evaluation utilities for HoVer-Net / QuPath / CellViT nuclei pipelines.
 
 ## Environment and dependencies
 
@@ -32,7 +32,7 @@ Core libraries (see `requirements.txt`):
 
 ## What is ilastik?
 
-[ilastik](https://www.ilastik.org/) is an interactive learning and segmentation toolkit: you brush labels on images and it predicts class probabilities without requiring ML expertise. In this project we train ilastik pixel classifiers to produce **probability masks** (`*_Probabilities.h5`) that highlight unwanted regions(For example: **red blood cells** and **dark artifacts**). The scripts under `ilastik_inspection` and `ilastik_classifier` then use those masks to inspect thresholds and **filter matching nuclei out of NucSegAI segmentation JSONs** (and synced typeprob files). The same style of masks can also drive nucleus **reclassification** (Tumor / Lymphocyte / Fibroblast).
+[ilastik](https://www.ilastik.org/) is an interactive learning and segmentation toolkit: you brush labels on images and it predicts class probabilities without requiring ML expertise. In this project we train ilastik pixel classifiers to produce **probability masks** (`*_Probabilities.h5`) that highlight unwanted regions(For example: **red blood cells** and **dark artifacts**). The scripts under `ilastik_inspection` and `ilastik_classifier` then use those masks to inspect thresholds and **filter matching nuclei out of HoVer-Net segmentation JSONs** (and synced typeprob files). The same style of masks can also drive nucleus **reclassification** (Tumor / Lymphocyte / Fibroblast).
 
 **4-class type IDs** (`type_info_4class.json`):
 
@@ -51,7 +51,7 @@ Core libraries (see `requirements.txt`):
 
 ## `ilastik_inspection`
 
-Exploratory tools for understanding ilastik `*_Probabilities.h5` maps and how they align with NucSegAI JSON coordinates. **Read-only** — none of these scripts modify JSONs.
+Exploratory tools for understanding ilastik `*_Probabilities.h5` maps and how they align with HoVer-Net JSON coordinates. **Read-only** — none of these scripts modify JSONs.
 
 
 | Script                            | Purpose                                                                                                          |
@@ -162,7 +162,7 @@ Rule-based alternative: `run_classify_tiles_from_cl_rules.sh` (or `_88.sh` for t
 
 ### `latticea_test_data`
 
-Lattice-a dataset helpers: match GT CSV labels to NucSegAI JSON contours (`verify_nucsegai_gt_json_matching.py`), compare GT vs DL cell-label CSVs, filter nuclei/CSV rows with artifact–RBC ilastik masks, fix offset 4-class type indices (`fix_4class_json_types.py`), and wrappers for CellViT recall evals on this set.
+Lattice-a dataset helpers: match GT CSV labels to HoVer-Net JSON contours (`verify_hovernet_gt_json_matching.py`), compare GT vs DL cell-label CSVs, filter nuclei/CSV rows with artifact–RBC ilastik masks, fix offset 4-class type indices (`fix_4class_json_types.py`), and wrappers for CellViT recall evals on this set.
 
 ### `cellvit_inspection`
 

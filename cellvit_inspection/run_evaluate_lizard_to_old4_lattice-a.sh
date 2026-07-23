@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Evaluate CellViT++ Lizard predictions against old 4-class GT JSON.
 #
-# GT JSONs use the NucSegAI-style {"nuc": {...}} layout (types 0-3).
+# GT JSONs use the HoVer-Net-style {"nuc": {...}} layout (types 0-3).
 # Predictions use CellViT++ {"cells": [...]} layout (Lizard types 0-5).
 #
 # Adjust --gt-dir / --pred-dir if your GT files are copied into the CellViT++

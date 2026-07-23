@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Match ground-truth CSV nuclei to NucSegAI JSON contours and label each GT row.
+Match ground-truth CSV nuclei to HoVer-Net JSON contours and label each GT row.
 
 For each GT row (class, x, y), first test whether the centroid itself lies in a
 predicted contour (point-in-polygon). If not, test neighbor pixels in a disk
@@ -12,7 +12,7 @@ Output columns:
   - class
   - x
   - y
-  - nucsegai_class
+  - hovernet_class
   - match_status ("correct", "mismatched", or "unmatched")
   - nuc_id
   - type_prob
@@ -35,7 +35,7 @@ JSON layout: expects either {"nuc": {"1": {...}, ...}, ...} or a flat dict of
 id -> nucleus objects with "contour" and "type".
 
 Usage:
-    python verify_nucsegai_gt_json_matching.py \\
+    python verify_hovernet_gt_json_matching.py \\
         --json-dir "/mnt/j/HandE/results/latticea_test_data/pred_scn/json" \\
         --gt-csv-dir "/mnt/j/HandE/results/latticea_test_data/gt_celllabels_mpp025_from04915" \\
         --out-dir "/mnt/j/HandE/results/latticea_test_data/gt_celllabels_mpp025_from04915_matched"
@@ -73,7 +73,7 @@ PRED_TYPE_TO_GT_ALLOWED_LOOSE: Dict[int, Tuple[str, ...]] = {
     6: ("o", "f"),
 }
 
-# NucSegAI type index -> human-readable class (column D).
+# HoVer-Net type index -> human-readable class (column D).
 PRED_TYPE_LABEL: Dict[int, str] = {
     0: "Undefined",
     1: "Epithelium (PD-L1 low and Ki67 low)",
@@ -85,7 +85,7 @@ PRED_TYPE_LABEL: Dict[int, str] = {
 }
 
 
-def nucsegai_class_label(pred_type: int) -> str:
+def hovernet_class_label(pred_type: int) -> str:
     if pred_type in PRED_TYPE_LABEL:
         return PRED_TYPE_LABEL[pred_type]
     return f"Unknown type ({pred_type})"
@@ -310,7 +310,7 @@ def process_pair(
         "class",
         "x",
         "y",
-        "nucsegai_class",
+        "hovernet_class",
         "match_status",
         "nuc_id",
         "type_prob",
@@ -351,7 +351,7 @@ def process_pair(
             n_unmatched += 1
             per_class[gt_key][3] += 1
 
-        nuc_label = nucsegai_class_label(pred.pred_type) if pred is not None else ""
+        nuc_label = hovernet_class_label(pred.pred_type) if pred is not None else ""
         nuc_id = pred.nucleus_id if pred is not None else ""
         type_prob = pred.type_prob if pred is not None else ""
         out_cells = [cells[0], cells[1], cells[2], nuc_label, status, nuc_id, type_prob]
@@ -377,7 +377,7 @@ def _safe_accuracy(n_correct: int, n_total: int) -> float:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--json-dir", required=True, help="Directory with NucSegAI JSON per tile")
+    p.add_argument("--json-dir", required=True, help="Directory with HoVer-Net JSON per tile")
     p.add_argument("--gt-csv-dir", required=True, help="Directory with GT CSV per tile")
     p.add_argument(
         "--out-dir",
