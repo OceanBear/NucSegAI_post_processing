@@ -1,6 +1,6 @@
 # nucsegai_post_processing
 
-Post-processing, inspection, and evaluation utilities for [HoVer-Net](https://github.com/vqdang/hover_net) / [QuPath](https://qupath.github.io/) / [CellViT](https://github.com/tio-ikim/cellvit-plus-plus) nuclei pipelines.
+Post-processing, inspection, and evaluation utilities for [HoVer-Net](https://github.com/vqdang/hover_net) / [QuPath](https://qupath.github.io/) / [CellViT++](https://github.com/tio-ikim/cellvit-plus-plus) nuclei pipelines.
 
 ## Environment and dependencies
 
