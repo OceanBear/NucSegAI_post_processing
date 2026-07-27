@@ -12,7 +12,9 @@ RADIUS="${3:-4}"
 CHANNEL="${4:-0}"
 H5_LAYOUT="${5:-yxc}"
 
-python3 /home/qxiong/projects/nucsegai_post_processing/latticea_test_data/filter_csv_with_ilastik_mask.py \
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+python3 "${SCRIPT_DIR}/filter_csv_with_ilastik_mask.py" \
   --csv-dir "/mnt/j/HandE/results/latticea_test_data/gt_celllabels_mpp025_from04915" \
   --h5-dir "/mnt/j/HandE/results/latticea_test_data/ilastik_h5/Artifacts" \
   --out-dir "/mnt/j/HandE/results/latticea_test_data/gt_celllabels_mpp025_from04915_filtered_t${PIXEL_THRESHOLD}_f${FRACTION_THRESHOLD}_r${RADIUS}" \

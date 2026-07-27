@@ -1,5 +1,5 @@
-# Python deps for nucsegai_post_processing
-# Matches conda env `nucsegai_post_processing` (Python 3.11).
+# Python deps for HoVer-Net post-processing
+# Recommended conda env: `hovernet_post_processing` (Python 3.11).
 #
 # Install:
 #   pip install -r requirements.txt

@@ -1,6 +1,6 @@
 {
-  "labeled_json": "/home/qxiong/projects/nucsegai_post_processing/region_classification/tile_categories_88_tiles.json",
-  "predicted_json": "/home/qxiong/projects/nucsegai_post_processing/region_classification/tile_categories_cl_rules.json",
+  "labeled_json": "region_classification/tile_categories_88_tiles.json",
+  "predicted_json": "region_classification/tile_categories_cl_rules.json",
   "predicted_metadata": {
     "tile_size_mm2": 2.0,
     "description": "Tile categories from CL map compositional rules (see metadata.thresholds); no tumour_scar. Tile ids are *_cl.png stems without _cl.",

@@ -1,13 +1,14 @@
-# nucsegai_post_processing
+# HoVer-Net post-processing
 
 Post-processing, inspection, and evaluation utilities for [HoVer-Net](https://github.com/vqdang/hover_net) / [QuPath](https://qupath.github.io/) / [CellViT++](https://github.com/tio-ikim/cellvit-plus-plus) nuclei pipelines.
 
 ## Environment and dependencies
 
-Recommended conda environment: `nucsegai_post_processing` (Python **3.11**).
+Recommended conda environment: `hovernet_post_processing` (Python **3.11**).
 
 ```bash
-conda activate nucsegai_post_processing
+conda create -n hovernet_post_processing python=3.11 -y
+conda activate hovernet_post_processing
 pip install -r requirements.txt
 ```
 
