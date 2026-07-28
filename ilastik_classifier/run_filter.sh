@@ -1,10 +1,10 @@
-python filter_nuclei_with_ilastik_mask.py \
-  --json-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/json" \
-  --typeprob-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/typeprob" \
-  --h5-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_post_processing/artifacts/Probabilities" \
-  --rbc-h5-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_post_processing/RBC/Probabilities" \
-  --out-json-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/json_filtered" \
-  --out-typeprob-dir "/mnt/j/HandE/results/SOW1885_n=201_AT2 40X/JN_TS_001-013/pred_03_26/typeprob_filtered" \
+python ilastik_classifier/filter_nuclei_with_ilastik_mask.py \
+  --json-dir "/mnt/f/data/HandE/sow1885_n201/nucsegai_pred/json" \
+  --typeprob-dir "/mnt/f/data/HandE/sow1885_n201/nucsegai_pred/typeprob" \
+  --artifact-h5-dir "/mnt/j/HandE/results/ilastik/mask_artifact" \
+  --rbc-h5-dir "/mnt/j/HandE/results/ilastik/mask_rbc" \
+  --out-json-dir "/mnt/f/data/HandE/sow1885_n201/nucsegai_pred/json_filtered" \
+  --out-typeprob-dir "/mnt/f/data/HandE/sow1885_n201/nucsegai_pred/typeprob_filtered" \
   --artifact-threshold 0.5 \
   --artifact-fraction-threshold 0.5\
   --rbc-threshold 0.5 \
